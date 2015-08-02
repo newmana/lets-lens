@@ -507,8 +507,8 @@ setStreet ::
   Person
   -> String
   -> Person
-setStreet p s =
-  set addressL p $ set streetL (get addressL p) s
+setStreet =
+  set (streetL |. addressL)
 
 -- |
 --
@@ -520,8 +520,8 @@ setStreet p s =
 getAgeAndCountry ::
   (Person, Locality)
   -> (Int, String)
-getAgeAndCountry (p, l) =
-  (get ageL p, get countryL l)
+getAgeAndCountry =
+  get (ageL *** countryL)
 
 -- |
 --
@@ -532,11 +532,8 @@ getAgeAndCountry (p, l) =
 -- (Person 28 "Mary" (Address "83 Mary Ln" "Maryland" (Locality "Some Other City" "Western Mary" "Maristan")),Address "15 Fred St" "Fredville" (Locality "Mary Mary" "Western Mary" "Maristan"))
 setCityAndLocality ::
   (Person, Address) -> (String, Locality) -> (Person, Address)
-setCityAndLocality (p, a) (s, l) =
-  (new_p, new_a)
-    where
-      new_p = set (localityL |. addressL) p (set cityL (get (localityL |. addressL) p) s)
-      new_a = set localityL a l
+setCityAndLocality =
+  set (cityL |. localityL |. addressL *** localityL)
   
 -- |
 --
@@ -549,7 +546,7 @@ getSuburbOrCity ::
   Either Address Locality
   -> String
 getSuburbOrCity =
-  error "todo: getSuburbOrCity"
+  get (suburbL ||| cityL)
 
 -- |
 --
@@ -563,7 +560,7 @@ setStreetOrState ::
   -> String
   -> Either Person Locality
 setStreetOrState =
-  error "todo: setStreetOrState"
+  set (streetL |. addressL ||| stateL)
 
 -- |
 --
@@ -576,4 +573,4 @@ modifyCityUppercase ::
   Person
   -> Person
 modifyCityUppercase =
-  error "todo: modifyCityUppercase"
+  cityL |. localityL |. addressL %~ map toUpper
